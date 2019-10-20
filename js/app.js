@@ -71,6 +71,7 @@ jQuery(function ($) {
 			if(this.filter === 'all'){
 				$('.todo-list li').last().addClass('fading');
 			}
+			
 			this.renderFooter();
 			$('.new-todo').focus();
 			util.store('todos-jquery', this.todos);
@@ -141,11 +142,17 @@ jQuery(function ($) {
 			if (e.which !== ENTER_KEY || !val) {
 				return;
 			}
+			var currentDateTime = new Date();
+			var currDate = moment(currentDateTime).format('LL');
+			var currTime = moment(currentDateTime).format('hh:mm a');
 
 			this.todos.push({
 				id: util.uuid(),
 				title: val,
-				completed: false
+				completed: false,
+				creationDate: currDate,
+				creationTime: currTime,
+				completion_timestamp: 0, // Timestamp of completion which helps in ordering lists
 			});
 
 			$input.val('');
@@ -155,6 +162,26 @@ jQuery(function ($) {
 		toggle: function (e) {
 			var i = this.getIndexFromEl(e.target);
 			this.todos[i].completed = !this.todos[i].completed;
+			this.todos[i].completion_timestamp = (this.todos[i].completion_timestamp === 0) ? e.timeStamp : 0
+				
+			var listOfCompletedToDos = this.getCompletedTodos();
+
+			// sorting based on timestamp
+            listOfCompletedToDos.sort(function(a, b) {
+                var ele1 = a.completion_timestamp;
+                var ele2 = b.completion_timestamp;
+                if (ele1 < ele2) {
+                    return -1;
+                }
+                if (ele1 > ele2) {
+                    return 1;
+                }
+                // timestamp equal
+                return 0;
+            });
+
+            // ToDo : change font for 3 recent completed lists
+
 			this.render();
 		},
 		editingMode: function (e) {
