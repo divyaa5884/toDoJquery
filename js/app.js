@@ -183,6 +183,9 @@ jQuery(function ($) {
 				creationDate: currDate,
 				creationTime: currTime,
 				completion_timestamp: 0, // Timestamp of completion which helps in ordering lists
+				completionDate: null,
+				completionTime: null
+
 			});
 
 			$input.val('');
@@ -193,7 +196,17 @@ jQuery(function ($) {
 			var i = this.getIndexFromEl(e.target);
 			this.todos[i].completed = !this.todos[i].completed;
 			this.todos[i].completion_timestamp = (this.todos[i].completion_timestamp === 0) ? e.timeStamp : 0
-
+			var isChecked = $(e.target).prop('checked');
+			if(isChecked){
+				var currentDateTime = new Date();
+				var currDate = moment(currentDateTime).format('LL');
+				var currTime = moment(currentDateTime).format('hh:mm a');
+				this.todos[i].completionDate = currDate;
+				this.todos[i].completionTime = currTime;
+			} else{
+				this.todos[i].completionDate = null;
+				this.todos[i].completionTime = null;
+			}
 			this.render();
             
 		},

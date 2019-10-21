@@ -35,6 +35,12 @@
 						<span>{{creationDate}}</span>
 						<span>{{creationTime}}</span>
 					</div>
+					{{#if completionDate}}
+					<div class="completion-time">
+						<span>{{completionDate}}</span>
+						<span>{{completionTime}}</span>
+					</div>
+					{{/if}}
 					<button class="destroy"></button>
 				</div>
 				<input class="edit" value="{{title}}">
