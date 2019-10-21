@@ -65,7 +65,7 @@ jQuery(function ($) {
 		},
 		renderColor: function(){
 			var listOfCompletedToDos = this.getCompletedTodos();
-			// sorting based on timestamp
+			// sorting based on timestamp to check which one is clicked recently
             listOfCompletedToDos.sort(function(a, b) {
                 var ele1 = a.completion_timestamp;
                 var ele2 = b.completion_timestamp;
@@ -75,13 +75,14 @@ jQuery(function ($) {
                 if (ele1 > ele2) {
                     return 1;
                 }
-                // timestamp equal
+                // equal timestamp
                 return 0;
             });
 
             var len = listOfCompletedToDos.length - 1;
 
-            // filtering list based on id and removing class(related to color) if already there
+            // filtering list based on id and changing color based on ordering
+            // currently ticked : green, 2nd last ticked : magenta, 3rd last ticked : yellow
 			var colors = ["yellow", "magenta", "green"];
 			var colorIndex = 2;
 			var loopToRun = (len>=2) ? len-2 : 0;
@@ -98,6 +99,7 @@ jQuery(function ($) {
 			$('.todo-list').html(this.todoTemplate(todos));
 			$('.main').toggle(todos.length > 0);
 			$('.toggle-all').prop('checked', this.getActiveTodos().length === 0);
+			// change color of currently created task
 			if(this.filter === 'all'){
 				$('.todo-list li').last().addClass('fading');
 			}
@@ -176,6 +178,7 @@ jQuery(function ($) {
 			var currDate = moment(currentDateTime).format('LL');
 			var currTime = moment(currentDateTime).format('hh:mm a');
 
+			//  added keys for date and time of creation and completion of tasks
 			this.todos.push({
 				id: util.uuid(),
 				title: val,
@@ -195,7 +198,11 @@ jQuery(function ($) {
 		toggle: function (e) {
 			var i = this.getIndexFromEl(e.target);
 			this.todos[i].completed = !this.todos[i].completed;
-			this.todos[i].completion_timestamp = (this.todos[i].completion_timestamp === 0) ? e.timeStamp : 0
+
+			// if timestamp exists, set value to null on toggle else set to current timestamp
+			this.todos[i].completion_timestamp = this.todos[i].completion_timestamp ? null : e.timeStamp;
+
+			// setting completion date and time for task ticked
 			var isChecked = $(e.target).prop('checked');
 			if(isChecked){
 				var currentDateTime = new Date();
@@ -204,6 +211,7 @@ jQuery(function ($) {
 				this.todos[i].completionDate = currDate;
 				this.todos[i].completionTime = currTime;
 			} else{
+				// if unchecked set the value to null
 				this.todos[i].completionDate = null;
 				this.todos[i].completionTime = null;
 			}
