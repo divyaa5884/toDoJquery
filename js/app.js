@@ -63,6 +63,36 @@ jQuery(function ($) {
 				.on('focusout', '.edit', this.update.bind(this))
 				.on('click', '.destroy', this.destroy.bind(this));
 		},
+		renderColor: function(){
+			var listOfCompletedToDos = this.getCompletedTodos();
+			// sorting based on timestamp
+            listOfCompletedToDos.sort(function(a, b) {
+                var ele1 = a.completion_timestamp;
+                var ele2 = b.completion_timestamp;
+                if (ele1 < ele2) {
+                    return -1;
+                }
+                if (ele1 > ele2) {
+                    return 1;
+                }
+                // timestamp equal
+                return 0;
+            });
+
+            var len = listOfCompletedToDos.length - 1;
+
+            // filtering list based on id and removing class(related to color) if already there
+			var colors = ["yellow", "magenta", "green"];
+			var colorIndex = 2;
+			var loopToRun = (len>=2) ? len-2 : 0;
+			for(var i = len; i >= loopToRun; i--){
+            	var currElId = listOfCompletedToDos[i].id;
+            	$('.todo-list li').filter(function(){
+	            	return $(this).data('id') === currElId;
+	            }).find(".view label").css("color","black").css("color", colors[colorIndex]);
+	            colorIndex--;
+            }
+		},
 		render: function () {
 			var todos = this.getFilteredTodos();
 			$('.todo-list').html(this.todoTemplate(todos));
@@ -71,7 +101,7 @@ jQuery(function ($) {
 			if(this.filter === 'all'){
 				$('.todo-list li').last().addClass('fading');
 			}
-			
+			this.renderColor(); // changing color for 3 recent completed lists
 			this.renderFooter();
 			$('.new-todo').focus();
 			util.store('todos-jquery', this.todos);
@@ -163,26 +193,9 @@ jQuery(function ($) {
 			var i = this.getIndexFromEl(e.target);
 			this.todos[i].completed = !this.todos[i].completed;
 			this.todos[i].completion_timestamp = (this.todos[i].completion_timestamp === 0) ? e.timeStamp : 0
-				
-			var listOfCompletedToDos = this.getCompletedTodos();
-
-			// sorting based on timestamp
-            listOfCompletedToDos.sort(function(a, b) {
-                var ele1 = a.completion_timestamp;
-                var ele2 = b.completion_timestamp;
-                if (ele1 < ele2) {
-                    return -1;
-                }
-                if (ele1 > ele2) {
-                    return 1;
-                }
-                // timestamp equal
-                return 0;
-            });
-
-            // ToDo : change font for 3 recent completed lists
 
 			this.render();
+            
 		},
 		editingMode: function (e) {
 			var $input = $(e.target).closest('li').addClass('editing').find('.edit');
